@@ -89,7 +89,7 @@ void initEnvironment()
 	start[0] = 1/4.0 * M_PI; start[1] = 0.0; start[2] = 0;
 	P0 = identity<3>() * 0.001;
 	// callisto params
-	CAL_SetViewParams(0, 0, 0, 14, 0, 0, 0, 0, 1, 0); 
+	CAL_SetViewParams(0, 0, 0, 10, 0, 0, 0, 0, 1, 0); 
 
 	CAL_CreateGroup(&cal_environment, 0, true, "Environment");
 	CAL_CreateGroup(&cal_obstacles, cal_environment, true, "Obstacles");
@@ -195,7 +195,7 @@ void showconfigurationpath(const std::vector<RRT::PathNode>& path)
 		Matrix<3> state = path[i].T;
 		Matrix<3> u = path[i].u;
 		Matrix<3> nextState = dy.dynamics_zero_noise(state, u);
-		float line[6] = {state[0], state[1], 0.0, nextState[0], nextState[1], 0.0};
+		float line[6] = {state[0], state[1], state[2], nextState[0], nextState[1], nextState[2]};
 		int np[1] = {2};
 		CAL_CreatePolyline(cal_visual1, 1, np, line);
 	}

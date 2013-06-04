@@ -209,6 +209,28 @@ inline void drawEllipse2d(const Matrix<2>& x, const Matrix<2, 2>& S, int groupid
 	}
 }
 
+
+inline void drawEllipse3d(const Matrix<3>& x, const Matrix<3,3>& S, int groupid, bool contour = false)
+{
+	Matrix<3,3> V, E;
+	jacobi(S, V, E);
+	Matrix<3,3> R = identity<3>();
+	R.insert(0,0, V);
+	Matrix<4,1> q = quatFromRot(R);
+
+	int obj;
+//	if (contour) {
+//		CAL_CreateUserDrawn(groupid, drawUnitSphere, NULL, 0.0f, 0.0f, 0.0f, &obj);
+//	} else {
+		CAL_CreateSphere(groupid, 1.0f, 0.0f, 0.0f, 0.0f, &obj);
+//	}
+	CAL_SetObjectPosition(obj, (float) x[0], (float) x[1], (float) x[2]);
+	CAL_SetObjectQuaternion(obj, (float) q(0,0), (float) q(1,0), (float) q(2,0), (float) q(3,0));
+	
+	double scale = 3.0;
+	CAL_SetObjectScaling(obj, (float) (scale*sqrt(E(0,0))), (float) (scale*sqrt(E(1,1))), (float) (scale*sqrt(E(2,2))));
+}
+
 /*************************************************************************
 Cephes Math Library Release 2.8:  June, 2000
 Copyright by Stephen L. Moshier

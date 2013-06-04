@@ -89,13 +89,14 @@ double LQGMP::computeConfidence(const Matrix<3>& cpos, const Matrix<3,3>& cR, co
 	CAL_GetClosestPairs(cal_point, cal_environment, &num_pairs);
 	SCALResult* results = new SCALResult[num_pairs];
 	CAL_GetResults(results);
+	return 0;
 }
 
 void LQGMP::draw_prior_distribution(const int& cal_ellipse){
 
 	createABVLK();
 	for(int i = 0; i < (int)pathlqg.size(); i++){
-		drawEllipse2d(pathlqg[i].T.subMatrix<2,1>(0,0), pathlqg[i].Sigma.subMatrix<2,2>(0,0), cal_ellipse, false);
+		drawEllipse3d(pathlqg[i].T, pathlqg[i].Sigma.subMatrix<3,3>(0,0), cal_ellipse, true);
 	}
 
 }
