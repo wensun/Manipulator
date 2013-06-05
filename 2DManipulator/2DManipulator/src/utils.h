@@ -619,33 +619,38 @@ inline void truncate(double x, double mean, double var, double& newMean, double&
 }
 
 
-inline void CreateManipulator(const Matrix<3>& state, const int& cal_link1, const int& cal_link2, const int& cal_link3)
+inline void CreateManipulator(const Matrix<3>& state, const int& cal_link1, const int& cal_link2, const int& cal_link3, bool flag)
 {
-
-	CAL_EmptyGroup(cal_link1);
-	CAL_EmptyGroup(cal_link2);
-	CAL_EmptyGroup(cal_link3);
+	//CAL_EmptyGroup(cal_link1);
+	//CAL_EmptyGroup(cal_link2);
+	//CAL_EmptyGroup(cal_link3);
 	double len = 1.5;
 	double w = 0.3;
+	if(flag == true)
+	{
+		CAL_CreateBox(cal_link1, len, w, 0.02, 0.0, 0.0, 0.0);
+		CAL_CreateBox(cal_link2, len, w, 0.02, 0.0, 0.0, 0.0);
+		CAL_CreateBox(cal_link3, len, w, 0.02, 0.0, 0.0, 0.0);
+	}
 	//dynamics
 	Matrix<2> p1 = zeros<2,1>();
 	p1[0] = 0.5*len*cos(state[0]);
 	p1[1] = 0.5*len*sin(state[0]);
-	CAL_CreateBox(cal_link1, len, w, 0.02, 0.0, 0.0, 0.0);
+	//CAL_CreateBox(cal_link1, len, w, 0.02, 0.0, 0.0, 0.0);
 	CAL_SetGroupPosition(cal_link1, p1[0], p1[1], 0.0);
 	CAL_SetGroupOrientation(cal_link1, 0.0, 0.0, state[0]);
 
 	Matrix<2> p2 = zeros<2,1>();
 	p2[0] = len*cos(state[0]) + 0.5*len*cos(state[1]);
 	p2[1] = len*sin(state[0]) + 0.5*len*sin(state[1]);
-	CAL_CreateBox(cal_link2, len, w, 0.02, 0.0, 0.0, 0.0);
+	//CAL_CreateBox(cal_link2, len, w, 0.02, 0.0, 0.0, 0.0);
 	CAL_SetGroupPosition(cal_link2, p2[0], p2[1], 0.0);
 	CAL_SetGroupOrientation(cal_link2, 0.0, 0.0, state[1]);
 
 	Matrix<2> p3 = zeros<2,1>();
 	p3[0] = len*(cos(state[0]) + cos(state[1]) + 0.5* cos(state[2]));
 	p3[1] = len*(sin(state[0]) + sin(state[1]) + 0.5* sin(state[2]));
-	CAL_CreateBox(cal_link3, len, w, 0.02, 0.0, 0.0, 0.0);
+	//CAL_CreateBox(cal_link3, len, w, 0.02, 0.0, 0.0, 0.0);
 	CAL_SetGroupPosition(cal_link3, p3[0], p3[1], 0.0);
 	CAL_SetGroupOrientation(cal_link3, 0.0, 0.0, state[2]);
 
@@ -770,19 +775,40 @@ inline Matrix<2> forward_k(const Matrix<3,1>& state, const int& K, const double&
 
 }
 
+inline void forward_jocabi(const Matrix<3,1>& qmean, const int& k, const double& l, Matrix<2,3>& Jocabi)
+{
+	double len = 1.5;
+	Jocabi.reset();
+	double theta1 = qmean[0]; double theta2 = qmean[1]; double theta3 = qmean[2];
+	if( k == 1 ){
+		Jocabi(0,0) = -l * sin(theta1); Jocabi(0,1) = 0; Jocabi(0,2) = 0;  
+		Jocabi(1,0) = l * cos(theta1);  Jocabi(1,1) = 0; Jocabi(1,2) = 0;
+	} 
+
+	else if( k == 2){
+		Jocabi(0,0) = -len * sin(theta1); Jocabi(0,1) = -l*sin(theta2); Jocabi(0,2) = 0;  
+		Jocabi(1,0) = len * cos(theta1);  Jocabi(1,1) = l* cos(theta2); Jocabi(1,2) = 0;
+	}
+	else if( k == 3){
+		Jocabi(0,0) = -len * sin(theta1); Jocabi(0,1) = -len*sin(theta2); Jocabi(0,2) = -l*sin(theta3);  
+		Jocabi(1,0) =  len * cos(theta1); Jocabi(1,1) =  len*cos(theta2); Jocabi(1,2) =  l*cos(theta3);
+	}
+}
+
+
 inline bool pointCollision(const Matrix<3>& state, const int& cal_link1, const int& cal_link2, const int& cal_link3, const int& cal_obstacles)
 {
 	CAL_SuspendVisualisation();
-	CreateManipulator(state, cal_link1, cal_link2, cal_link3);
+	CreateManipulator(state, cal_link1, cal_link2, cal_link3, false);
 
 	int col1 = -1, col2 = -1, col3 = -1;
 	CAL_CheckGroupCollision(cal_link1, cal_obstacles, false, &col1);
 	CAL_CheckGroupCollision(cal_link2, cal_obstacles, false, &col2);
 	CAL_CheckGroupCollision(cal_link3, cal_obstacles, false, &col3);
 
-	CAL_EmptyGroup(cal_link1);
-	CAL_EmptyGroup(cal_link2);
-	CAL_EmptyGroup(cal_link3);
+//	CAL_EmptyGroup(cal_link1);
+//	CAL_EmptyGroup(cal_link2);
+//	CAL_EmptyGroup(cal_link3);
 
 	CAL_ResumeVisualisation();
 

@@ -128,6 +128,9 @@ void initEnvironment()
 
 	CAL_CreateGroup(&cal_link3, 0, true, "link3");
 	CAL_SetGroupColor(cal_link3, 1, 0, 0);
+	CAL_SetGroupVisibility(cal_link1, 0, false);
+	CAL_SetGroupVisibility(cal_link2, 0, false);
+	CAL_SetGroupVisibility(cal_link3, 0, false);
 
 	CAL_CreateGroup(&cal_visual1, 0, false, "visual1");
 	CAL_SetGroupColor(cal_visual1, 1, 0, 0);
@@ -139,7 +142,7 @@ void initEnvironment()
 	CAL_SetGroupColor(cal_visual3, 1, 0, 0);
 
 	//VisualManipulator(start, cal_visual1, cal_visual2, cal_visual3);
-	//CreateManipulator(start, cal_link1, cal_link2, cal_link3);
+	CreateManipulator(start, cal_link1, cal_link2, cal_link3, true); //true for construction.
 
 	Matrix<2> p = forward_k(start, 3, 1.5);
 	std::cout<<p[0]<<" "<<p[1]<<std::endl;
@@ -147,7 +150,7 @@ void initEnvironment()
 	CAL_CreateSphere(cal_point, 0, 0, 0, 0);
 
 	CAL_CreateGroup(&cal_ellipse, 0, false, "Ellipse");
-	CAL_SetGroupColor(cal_ellipse, 0, 1, 0);
+	CAL_SetGroupColor(cal_ellipse, 0, 0, 1.0);
 
 	CAL_CreateGroup(&cal_ellipse_trunc, 0, false, "Ellipse_trunc");
 	CAL_SetGroupColor(cal_ellipse_trunc, 1, 0, 0);
@@ -161,7 +164,7 @@ void initEnvironment()
 	CAL_SetGroupPosition(cal_goal, (float) goal[0], (float) goal[1], -0.025f);
 	CAL_SetGroupOrientation(cal_goal, (float) (M_PI*0.5), 0, 0);
 
-	CAL_CreateSphere(cal_point, 0.2, 7.0/4.0*3.1416, 0.0, 0.0);
+	//CAL_CreateSphere(cal_point, 0.2, 7.0/4.0*3.1416, 0.0, 0.0);
 	
 }
 
@@ -172,6 +175,7 @@ void showpath(const std::vector<RRT::PathNode>& path, int group_id1, int group_i
 	for(int i = 0; i < (int)path.size(); i++){
 		Matrix<3> state = path[i].T;
 		Matrix<2> p1 = forward_k(state, 1, 1.5);
+	//	std::cout<<p1[0]<<" "<<p1[1]<<std::endl;
 		float line1[6] = {0.0, 0.0, 0.0, p1[0], p1[1], 0.0};
 		int np[1] = {2};
 		CAL_CreatePolyline(cal_rrt, 1, np, line1);
@@ -214,7 +218,7 @@ int main()
 	
 	double dt = 0.5;
 	double plantime = 10;
-	P0 = identity<3>() * 0.01*0.01;
+	P0 = identity<3>() * 0.05*0.05;
 
 	RRT rrt(start, goal, dt, plantime, goal_radius, cal_obstacles, cal_link1, cal_link2, cal_link3, cal_rrt);
 	rrt.setPlannerDefaults();
@@ -224,7 +228,9 @@ int main()
 	showconfigurationpath(rrt.pathSet[0]);
 
 	LQGMP lqgmp(rrt.pathSet[0],dt, P0); 
+	double prob = lqgmp.computeProbability(P0, cal_obstacles, cal_environment, cal_point);
 	lqgmp.draw_prior_distribution(cal_ellipse);
+	std::cout<<"Probablity of success: "<<prob<<std::endl;
 
 	int num;
 	std::cin>>num;

@@ -83,7 +83,7 @@ public:
 		int size = (int)m_rrtpath.size();
 		pathlqg.clear();
 
-		M = identity<3>() * 0.02*0.02;
+		M = identity<3>() * 0.05*0.05;
 		N = identity<2>() * 0.05*0.05;
 		
 		C = identity<3>();
@@ -91,8 +91,10 @@ public:
 	}
 
 	void createABVLK();
-	double computeConfidence(const Matrix<3>& cpos, const Matrix<3,3>& cR, const int& cal_obstacles, const int& cal_environment, const int& cal_point);
 	void draw_prior_distribution(const int& cal_ellipse);
+	double computeWSConfidence(const Matrix<2>& pos, const Matrix<2,2>& R, const int& cal_obstacles, const int& cal_environment, const int& cal_point);
+	double computeConfidence(const Matrix<3>& q, const Matrix<3,3>& R, const int& cal_obstacles, const int& cal_environment, const int& cal_point);
+	double computeProbability(const Matrix<3,3>& initialCov, const int& cal_obstacles, const int& cal_environment, const int& cal_point);
 };
 
 
